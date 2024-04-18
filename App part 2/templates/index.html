@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome To The Sociale</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        h1 {
+            text-align: center;
+        }
+
+        .buttons {
+            text-align: center;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-right: 20px;
+            border: 2px solid #000;
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div>
+        <h1>Welcome To The Sociale</h1>
+        <div class="buttons">
+            <a href="/create-account" class="button">Create an Account</a>
+            <a href="/login" class="button">Login</a>
+            <a href="/plan-hangout" class="button">Plan a Hangout</a>
+        </div>
+    </div>
+</body>
+</html>
