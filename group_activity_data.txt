@@ -1,0 +1,17 @@
+Age: 16
+Group Size: 5
+Activity: Movie
+Budget:200
+
+Age: 19
+Group Size: 5
+Activity: Bowling
+Budget:750Age: 12
+Group Size: 3
+Activity: Movie
+Budget: 500
+
+Age: 16
+Group Size: 5
+Activity: Bowling
+Budget: 500

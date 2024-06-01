@@ -1,0 +1,2 @@
+Movie: 500
+Bowling: 500
