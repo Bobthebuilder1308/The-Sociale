@@ -18,8 +18,8 @@ light_theme = {
 }
 current_theme = "dark"
 
-
 def save_data(age, group_size, activity, budget):
+    """Save data to a file."""
     filename = filedialog.asksaveasfilename(
         defaultextension=".txt",
         filetypes=[("Text files", "*.txt")],
@@ -36,10 +36,9 @@ def save_data(age, group_size, activity, budget):
 
     print("Data saved successfully!")
 
-
 def change_theme(event):
-    global current_theme, theme_clicks
-    theme_clicks += 1
+    """Change the theme of the application."""
+    global current_theme
     if current_theme == "dark":
         current_theme = "light"
     else:
@@ -53,10 +52,10 @@ def change_theme(event):
         bg=light_theme["bg"] if current_theme == "light" else dark_theme["bg"],
     )
 
-
 def open_new_page():
+    """Open a new page with input fields."""
     global new_window, age_entry, group_size_entry, activity_var, budget_var, budget_label
-    new_window = customtkinter.CTk()
+    new_window = customtkinter.CTkToplevel(root)
     new_window.geometry("500x500")
 
     age_label = customtkinter.CTkLabel(master=new_window, text="Age:")
@@ -81,21 +80,40 @@ def open_new_page():
     budget_label.pack(padx=20, pady=10)
     budget_entry = customtkinter.CTkEntry(master=new_window, width=50, textvariable=budget_var)
     budget_entry.pack(padx=40, pady=20)
-submit_button = customtkinter.CTkButton(
-    master=new_window,
-    text="Submit",
-    command=lambda: submit_form(age_entry, group_size_entry, activity_var, budget_var, budget_label),
-)
-submit_button.pack(padx=20, pady=10)
-
-new_window.mainloop()
-
+    submit_button = customtkinter.CTkButton(
+        master=new_window,
+        text="Submit",
+        command=lambda: submit_form(age_entry, group_size_entry, activity_var, budget_var, budget_label),
+    )
+    submit_button.pack(padx=20, pady=10)
 
 def format_budget(value):
+    """Format the budget value."""
     return f"{value}₹"
 
+def submit_form(age_entry, group_size_entry, activity_var, budget_var, budget_label):
+    """Submit the form data."""
+    budget = budget_var.get()
+    budget_label.configure(text=f"Budget: {format_budget(budget)}")
+    age = age_entry.get()
+    group_size = group_size_entry.get()
+    activity = activity_var.get()
 
-theme_clicks = 0
+    # Save all details to group_activity_data.txt
+    data_file = "group_activity_data.txt"
+    with open(data_file, "a") as file:
+        file.write(f"Age: {age}\n")
+        file.write(f"Group Size: {group_size}\n")
+        file.write(f"Activity: {activity}\n")
+        file.write(f"Budget: {budget}\n\n")
+    print(f"Data saved successfully to {data_file}")
+
+    # Save activity and budget to work_data.txt
+    work_data = f"{activity}: {budget}\n"
+    with open("work_data.txt", "a") as work_file:
+        work_file.write(work_data)
+    print(f"Data saved successfully to group_activity_data.txt and work_data.txt")
+
 root = customtkinter.CTk()
 root.title("The Sociale")
 button = customtkinter.CTkButton(master=root, text="Welcome To Sociale (We Are Working on the name)", command=open_new_page)
@@ -106,37 +124,8 @@ theme_button.place(relx=1, rely=0, anchor="ne")
 theme_button.bind("<Button-1>", change_theme)
 root.configure(fg_color=dark_theme["fg_color"], bg=dark_theme["bg"])
 
-data_file = "group_activity_data.txt"  # File for all details
-
-
-def submit_form(age_entry, group_size_entry, activity_var, budget_var, budget_label):
-    budget = budget_var.get()
-    budget_label.configure(text=f"Budget: {format_budget(budget)}")
-    age = age_entry.get()
-    group_size = group_size_entry.get()
-    activity = activity_var.get()
-
-    # Save all details to group_activity_data.txt (as before)
-    with open(data_file, "a") as file:
-        file.write(f"Age: {age}\n")
-        file.write(f"Group Size: {group_size}\n")
-        file.write(f"Activity: {activity}\n")
-        file.write(f"Budget: {budget}\n\n")
-    print(f"Data saved successfully to {data_file}")
-
-    # Save activity and budget to work_data.txt
-    work_data = f"{activity}: {budget}\n"  # Format data for work_data.txt
-    with open("work_data.txt", "a") as work_file:
-        work_file.write(work_data)
-    print(f"Data saved successfully to group_activity_data.txt and work_data.txt")
-
-root.mainloop()
-
 def parse_activity_data(filename, activity_name):
-    """
-    Reads activity data from a file and returns a dictionary (simplified).
-    Focuses on the specified activity based on the activity_name.
-    """
+    """Parse activity data from a file."""
     data = {}
     if not os.path.exists(filename):
         print(f"Error: File {filename} not found.")
@@ -146,26 +135,23 @@ def parse_activity_data(filename, activity_name):
             current_activity = None
             for line in file:
                 line = line.strip()
-                if line.isupper():  # Assuming activity names are uppercase
+                if line.isupper():
                     current_activity = line
                 elif current_activity and current_activity == activity_name:
-                    # Activity block found, process lines within this block
                     data[current_activity] = []
-                    for detail in file:  # Loop through details for this activity
+                    for detail in file:
                         detail = detail.strip()
-                        if not detail or detail.isupper():  # Break on empty line or new activity
+                        if not detail or detail.isupper():
                             break
-                        place, price = detail.split(": ", 1)  # Assuming price follows place
+                        place, price = detail.split(": ", 1)
                         try:
-                            price = float(price.strip("₹"))  # Convert price to float (assuming currency symbol)
+                            price = float(price.strip("₹"))
                         except ValueError:
                             print(f"Warning: Invalid price format for {place} in {filename}. Skipping.")
                             continue
-                        data[current_activity].append((place, price))  # Store place and price as tuple
-                    break  # Exit loop after processing this activity block
+                        data[current_activity].append((place, price))
+                    break
     except FileNotFoundError:
         print(f"Error: File {filename} not found.")
     return data
-
-
-#
+root.mainloop()
